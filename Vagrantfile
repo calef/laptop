@@ -14,6 +14,7 @@ Vagrant.configure("2") do |config|
       docker.create_args = ["--cgroupns=host"]
     end
 
+    config.vm.provision "file", source: "~/.ssh", destination: "/home/vagrant/.ssh_temp"
     docker_vm.vm.provision "shell", inline: <<-SHELL
       # Add a provisioner to change to a specific subdirectory of /vagrant upon login
       # The subdirectory matches the name of the current directory on the host machine
@@ -21,6 +22,22 @@ Vagrant.configure("2") do |config|
 
       # update the packages
       sudo apt-get update
+      sudo apt-get install -y git
+
+      # copy the keys
+      mkdir -p /home/vagrant/.ssh
+      # Copy all files from .ssh_temp to .ssh directory
+      cp -r /home/vagrant/.ssh_temp/* /home/vagrant/.ssh/
+      # Remove temporary directory
+      rm -rf /home/vagrant/.ssh_temp
+      # Set the correct permissions for the .ssh directory and its contents
+      chmod 700 /home/vagrant/.ssh
+      chmod 600 /home/vagrant/.ssh/*
+      # Ensure the authorized_keys file also has correct permissions in case it exists
+      chmod 644 /home/vagrant/.ssh/authorized_keys
+      # Change ownership of all the files in .ssh to vagrant user
+      chown -R vagrant:vagrant /home/vagrant/.ssh
+
       # cd /vagrant/#{current_dir_name} && [ -x script/bootstrap ] && ./script/bootstrap
     SHELL
   end
