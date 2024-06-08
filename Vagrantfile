@@ -6,14 +6,14 @@ Vagrant.configure("2") do |config|
 
     docker_vm.vm.provider :docker do |docker, override|
       override.vm.box = nil
-      docker.image = "rofrano/vagrant-provider:ubuntu"
+      docker.git_repo = "git@github.com:calef/vagrant-docker-provider-ubuntu-latest.git"
       docker.remains_running = true
       docker.has_ssh = true
       docker.privileged = true
       docker.volumes = ["/sys/fs/cgroup:/sys/fs/cgroup:rw"]
       docker.create_args = ["--cgroupns=host"]
     end
-
+    config.vm.network "forwarded_port", guest: 3000, host: 3000
     config.vm.provision "file", source: "~/.ssh", destination: "/home/vagrant/.ssh_temp"
     docker_vm.vm.provision "shell", inline: <<-SHELL
       # Add a provisioner to change to a specific subdirectory of /vagrant upon login
