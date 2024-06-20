@@ -1,6 +1,5 @@
 tap "homebrew/cask"
 cask "github"
-cask "slack"
 cask "firefox"
 cask "grammarly"
 cask "omnigraffle"
